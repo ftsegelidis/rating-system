@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  service:
+    image: 'docker-spring-boot-rating:latest'
+    build:
+      context: .
+    container_name: rating-service
+    depends_on:
+      - pgdbrating
+    environment:
+      - POSTGRES_USER= postgres
+      - POSTGRES_PASSWORD= 12345
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://pgdbrating:5432/ratingservice?useUnicode=yes&characterEncoding=UTF-8&useLegacyDatetimeCode=false&serverTimezone=Europe/Athens
+      - SPRING_PROFILES_ACTIVE=production
+
+
+    ports:
+      - "8080:8080"
+
+  pgdbrating:
+    image: postgres:12.1-alpine
+    container_name: pgdbrating
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_rating:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "12345"
+      POSTGRES_DB: "ratingservice"
+      PGDATA: "/pgdata"
+
+  pgadmin:
+    image: dpage/pgadmin4:4.23
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - "15432:80"
+    depends_on:
+      - pgdbrating
+
+
+
+volumes:
+  postgres_rating:
+    driver: local

@@ -1,21 +1,19 @@
-version: '3'
-
+# Database-only stack (optional). Prefer project-root `docker compose` for full app + DB.
 services:
-
   pgdbRating:
-    image: postgres:12.1-alpine
+    image: postgres:16-alpine
     container_name: pgdbrating
     ports:
       - "5432:5432"
     expose:
-          - 5432
+      - "5432"
     volumes:
-      - "postgres_rating:/var/lib/postgresql/data"
+      - postgres_rating:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "12345"
-      POSTGRES_DB: "ratingservice"
-      PGDATA: "/pgdata"
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-ratingservice}
+      PGDATA: /var/lib/postgresql/data/pgdata
 
 volumes:
   postgres_rating:

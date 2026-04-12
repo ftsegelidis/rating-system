@@ -1,96 +1,78 @@
 # Rating service
-This is the skeleton for a simple rating service created with Springboot.
 
+Spring Boot service for storing and aggregating ratings.
 
-## Prerequisites 
+## Prerequisites
 
-1. Jdk 15
-2. maven 3.8+
-3. docker
-4. postman
-
+1. JDK 17+
+2. Maven 3.8+
+3. Docker (optional, for the production-style stack)
 
 ## Installation
 
-- mvn clean install 
+```text
+mvn clean install
+```
 
 ## How to run
 
-#### Profile : local  
+### Profile: local
 
+```text
+mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
- mvn spring-boot:run -Dspring-boot.run.profiles=local
- ```
- in-memory database : h2 
- initial data (based on the example) : data.sql
 
-#### Profile : production
+- In-memory database: H2
+- Sample data: `data.sql`
+- API docs (OpenAPI UI): [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+- OpenAPI JSON: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
+### Profile: production (Docker)
+
+For PostgreSQL, pgAdmin, and the app:
+
+1. Copy `.env.example` to `.env` and set strong passwords.
+2. Run:
+
+```text
+docker compose up --build
 ```
-  docker-compose up --build
-```
- Consult Dockerfile and docker-compose.yml
 
-
+See `Dockerfile` and `docker-compose.yml`.
 
 ## How to test it
 
-1. Open postman
-2. Make a get request with url 
-```
-http://localhost:8080/ratings?rated_entity=property_3742&specificDate=2020/11/04 
+1. **GET** overall rating:
+
+```text
+http://localhost:8080/ratings?rated_entity=property_3742&specificDate=2020/11/04
 ```
 
-the specificDate is an extra optional parameter, if it's absent then the service will perform calculation based on the current date
+`specificDate` is optional (`yyyy/MM/dd`). If omitted, the service uses the current date.
 
-3. Make a post request with the following request body : 
+2. **POST** a rating:
 
-```
-http://localhost:8080/ratings
+```text
+POST http://localhost:8080/ratings
+Content-Type: application/json
 
 {
-"givenRating" : "5.0",
-"ratedEntity" : "xe",
-"rater" : null
+  "givenRating": 5.0,
+  "ratedEntity": "xe",
+  "rater": null
 }
 ```
 
-4. Confirm that the rating created :
-```
+3. Confirm:
+
+```text
 http://localhost:8080/ratings?rated_entity=xe
 ```
 
-## Bonus
+## Dependencies (high level)
 
-
-
-
-## Extra
-
-Dependencies :
-```
-For swagger2
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>2.4.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>2.4.0</version>
-		</dependency>
-		
-For health check		
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-
-For in-memory database
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
-```
+- **springdoc-openapi** — OpenAPI 3 / Swagger UI
+- **spring-boot-starter-actuator** — health and metrics (exposure configured per profile)
+- **H2** — local profile runtime database
+- **PostgreSQL** — production / Docker
+- **Caffeine** — caching (`spring-boot-starter-cache`)

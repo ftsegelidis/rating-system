@@ -1,13 +1,12 @@
-FROM openjdk:15
+FROM eclipse-temurin:21-jre-alpine
 
+RUN addgroup -S spring -g 1000 && adduser -S spring -u 1000 -G spring
 
-# the JAR file path
 ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} /app/application.jar
+RUN chown spring:spring /app/application.jar
 
-# Copy the JAR file from the build context into the Docker image
-COPY ${JAR_FILE} application.jar
+USER spring:spring
+WORKDIR /app
 
-CMD apt-get update -y
-
-# Set the default command to run the Java application
-ENTRYPOINT ["java", "-Xmx2048M", "-jar", "/application.jar"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "/app/application.jar"]
